@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IG Reels Downloader</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #fafafa;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+    input {
+      width: 90%;
+      padding: 12px;
+      margin-bottom: 1.5rem;
+      border: 1px solid #dbdbdb;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px 24px;
+      background-color: #0095f6;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #007bb5;
+    }
+    .download-btn {
+      background-color: #28a745;
+      margin-top: 1rem;
+    }
+    .download-btn:hover {
+      background-color: #218838;
+    }
+    #result {
+      margin-top: 1.5rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Reels Downloader</h2>
+  <input type="text" id="reelUrl" placeholder="Paste Reel URL here...">
+  <button onclick="downloadReel()">Fetch Video</button>
+
+  <div id="result"></div>
+</div>
+
+<script>
+  async function downloadReel() {
+    const url = document.getElementById('reelUrl').value;
+    const resultDiv = document.getElementById('result');
+    
+    if (!url.includes('instagram.com/reel/')) {
+      resultDiv.innerHTML = '<span style="color:red;">Please enter a valid Instagram Reel URL.</span>';
+      return;
+    }
+
+    resultDiv.innerHTML = '<span style="color:#555;">Loading...</span>';
+
+    try {
+      // Sending the URL to your Node.js backend
+      const response = await fetch('http://localhost:3000/api/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await response.json();
+
+      if (data.videoUrl) {
+        resultDiv.innerHTML = `
+          <span style="color:green;">Success!</span><br>
+          <a href="${data.videoUrl}" target="_blank" rel="noopener noreferrer">
+            <button class="download-btn">Download MP4</button>
+          </a>
+        `;
+      } else {
+        resultDiv.innerHTML = `<span style="color:red;">${data.error || 'Something went wrong.'}</span>`;
+      }
+    } catch (error) {
+      resultDiv.innerHTML = '<span style="color:red;">Failed to connect to the server. Is the backend running?</span>';
+    }
+  }
+</script>
+
+</body>
+</html>
